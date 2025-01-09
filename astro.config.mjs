@@ -14,9 +14,8 @@ export default defineConfig({
   integrations: [
     tailwind(),
     react(),
-    partytown(),
     yeskunallumami({
-      id: '8ce19401-77af-41af-ae50-793b53f32be5',
+      id: '7aa7460b-bb4d-4a2f-ae97-6e18ff4f4ca3',
     }),
   ],
   output: 'server',
