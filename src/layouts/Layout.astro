@@ -1,3 +1,10 @@
+---
+import { MainHeader } from "@/components/Header";
+import { Signout } from "@/components/Signout";
+
+const status = Astro.locals.session;
+---
+
 <!doctype html>
 <html lang="en">
   <head>
@@ -11,6 +18,7 @@
     <title>Astro Basics</title>
   </head>
   <body>
+    <MainHeader session={status} client:load />
     <slot />
   </body>
 </html>

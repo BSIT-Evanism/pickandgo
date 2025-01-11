@@ -1,20 +1,30 @@
 // @ts-check
-import { defineConfig } from 'astro/config';
+import { defineConfig, envField } from 'astro/config';
 
 import tailwind from '@astrojs/tailwind';
 import react from '@astrojs/react';
 import vercel from '@astrojs/vercel';
 
-import partytown from '@astrojs/partytown';
-
+import sentry from '@sentry/astro';
+import spotlightjs from '@spotlightjs/astro';
 
 // https://astro.build/config
 export default defineConfig({
-  integrations: [
-    tailwind(),
-    react(),
-    partytown(),
-  ],
+  env: {
+    schema: {
+      DATABASE_URL: envField.string({
+        context: 'server',
+        access: 'secret',
+        optional: false
+      }),
+      BETTER_AUTH_SECRET: envField.string({
+        context: 'server',
+        access: 'secret',
+        optional: false
+      })
+    }
+  },
+  integrations: [tailwind(), react()],
   output: 'server',
   adapter: vercel(),
 });

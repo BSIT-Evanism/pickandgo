@@ -1,8 +1,15 @@
 ---
 import Welcome from "../components/Welcome.astro";
 import Layout from "../layouts/Layout.astro";
+const data = Astro.locals;
 ---
 
 <Layout>
-  <h1>Hello</h1>
+  <div class="w-full h-full flex justify-center items-center">
+    <div
+      class="bg-slate-100 p-4 rounded-md max-w-fit w-full flex justify-center items-center"
+    >
+      <pre>{JSON.stringify(data, null, 2)}</pre>
+    </div>
+  </div>
 </Layout>
