@@ -2,7 +2,7 @@
 import { MainHeader } from "@/components/Header";
 import { Signout } from "@/components/Signout";
 
-const status = Astro.locals.session;
+const status = Astro.locals.session?.userId ?? null;
 ---
 
 <!doctype html>
@@ -12,10 +12,7 @@ const status = Astro.locals.session;
     <meta name="viewport" content="width=device-width" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="generator" content={Astro.generator} />
-    <script
-      src="https://cloud.umami.is/script.js"
-      data-website-id="7aa7460b-bb4d-4a2f-ae97-6e18ff4f4ca3"></script>
-    <title>Astro Basics</title>
+    <title>Pick and Go</title>
   </head>
   <body>
     <MainHeader session={status} client:load />

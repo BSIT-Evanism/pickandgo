@@ -1,0 +1,63 @@
+---
+import Editor from "@/components/Editor";
+import Layout from "@/layouts/Layout.astro";
+---
+
+<Layout>
+  <div class="flex">
+    <div
+      class="md:py-[100px] md:pl-[200px] md:pr-[80px] px-[20px] pt-[80px] pb-[40px] w-full h-screen flex justify-start flex-col items-center overflow-x-scroll border-r-2 border-gray-400 relative"
+    >
+      <Editor client:only />
+    </div>
+    <div
+      class="md:py-[100px] md:pl-[80px] md:pr-[80px] px-[20px] pt-[80px] pb-[40px] w-[500px] h-screen flex justify-start flex-col items-start border-l-2 border-gray-200 bg-gray-50"
+    >
+      <div class="w-full space-y-6 text-sm">
+        <h2 class="font-semibold text-lg">Editor Instructions</h2>
+
+        <div>
+          <h3 class="font-medium mb-2">Basic Formatting</h3>
+          <ul class="space-y-1.5 list-disc list-inside">
+            <li>Select text to show formatting options</li>
+            <li>
+              Use <kbd class="px-1.5 py-0.5 bg-gray-200 rounded">B</kbd> for bold
+            </li>
+            <li>
+              Use <kbd class="px-1.5 py-0.5 bg-gray-200 rounded">I</kbd> for italic
+            </li>
+            <li>
+              Use <kbd class="px-1.5 py-0.5 bg-gray-200 rounded">U</kbd> for underline
+            </li>
+          </ul>
+        </div>
+
+        <div>
+          <h3 class="font-medium mb-2">Block Elements</h3>
+          <ul class="space-y-1.5 list-disc list-inside">
+            <li>Type <code>/</code> to show block options</li>
+            <li>Choose headings, lists, quotes etc.</li>
+            <li>
+              Press <kbd class="px-1.5 py-0.5 bg-gray-200 rounded">Enter</kbd> twice
+              to exit blocks
+            </li>
+          </ul>
+        </div>
+
+        <div>
+          <h3 class="font-medium mb-2">Advanced Features</h3>
+          <ul class="space-y-1.5 list-disc list-inside">
+            <li>Create tables with columns and rows</li>
+            <li>Add code blocks with syntax highlighting</li>
+            <li>Embed external content like videos</li>
+            <li>Use callouts for important notes</li>
+          </ul>
+        </div>
+
+        <div class="text-xs text-gray-500 mt-8">
+          Tip: Hover over buttons to see keyboard shortcuts
+        </div>
+      </div>
+    </div>
+  </div>
+</Layout>
