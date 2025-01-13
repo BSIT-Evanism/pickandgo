@@ -6,6 +6,7 @@ export const user = pgTable("user", {
     email: text('email').notNull().unique(),
     emailVerified: boolean('email_verified').notNull(),
     image: text('image'),
+    role: text('role').notNull(),
     createdAt: timestamp('created_at').notNull(),
     updatedAt: timestamp('updated_at').notNull()
 });
@@ -45,3 +46,14 @@ export const verification = pgTable("verification", {
     createdAt: timestamp('created_at'),
     updatedAt: timestamp('updated_at')
 });
+
+
+export const posts = pgTable("posts", (t) => ({
+    id: t.text("id").primaryKey(),
+    title: t.text("title").notNull(),
+    content: t.json("content").notNull(),
+    public: t.boolean("public").notNull(),
+    createdAt: t.timestamp("created_at").notNull(),
+    updatedAt: t.timestamp("updated_at").notNull(),
+    userId: t.text("user_id").notNull().references(() => user.id, { onDelete: 'set null' })
+}))

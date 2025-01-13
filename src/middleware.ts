@@ -1,7 +1,10 @@
 import { auth } from "@/lib/auth";
-import { defineMiddleware } from "astro:middleware";
+import { defineMiddleware, sequence } from "astro:middleware";
+import { client } from "./lib/client";
+import { db } from "./db";
 
-export const onRequest = defineMiddleware(async (context, next) => {
+
+const authMiddleware = defineMiddleware(async (context, next) => {
     try {
         const isAuthed = await auth.api
             .getSession({
@@ -16,9 +19,34 @@ export const onRequest = defineMiddleware(async (context, next) => {
             context.locals.session = null;
         }
 
-        return next();
+        return await next()
     } catch (error) {
         console.error(error);
-        return next();
+        context.locals.user = null;
+        context.locals.session = null;
+        return await next()
     }
 });
+
+const initMiddleware = defineMiddleware(async (context, next) => {
+    try {
+        const noAdmin = await db.query.user.findFirst({
+            where: (table, { eq }) => eq(table.role, 'admin')
+        })
+        console.log(noAdmin)
+        context.locals.init = noAdmin ? true : false
+        if (!noAdmin) {
+            if (context.url.pathname !== '/init' && context.url.pathname !== '/api/init') {
+                return context.redirect('/init')
+            }
+        }
+
+        return await next()
+    } catch (error) {
+        console.error(error)
+        context.locals.init = false
+        return await next()
+    }
+})
+
+export const onRequest = sequence(initMiddleware, authMiddleware)

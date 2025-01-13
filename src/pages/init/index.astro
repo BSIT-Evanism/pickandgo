@@ -1,0 +1,11 @@
+---
+import { Init } from "@/components/Init";
+
+console.log(Astro.locals);
+
+if (Astro.locals.init) {
+  return Astro.redirect("/");
+}
+---
+
+<Init client:only="react" />

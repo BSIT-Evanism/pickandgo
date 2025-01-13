@@ -3,13 +3,13 @@ import { auth } from '@/lib/auth';
 import { Elysia, t, type Context } from 'elysia'
 import { swagger } from '@elysiajs/swagger'
 import { authRoutes } from '@/lib/backend/auth-routes';
+import { listingRoutes } from '@/lib/backend/listing-routes';
 
 
 
 const app = new Elysia({ prefix: '/api' })
     .use(authRoutes)
-    .get('/', () => 'hi')
-    .get('/hello', () => 'hello')
+    .use(listingRoutes)
 
 const handle = ({ request }: { request: Request }) => app.handle(request)
 

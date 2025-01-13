@@ -24,7 +24,9 @@ export default defineConfig({
       })
     }
   },
-  integrations: [tailwind(), react()],
+  integrations: [tailwind({
+    applyBaseStyles: false,
+  }), react()],
   output: 'server',
   adapter: vercel(),
 });

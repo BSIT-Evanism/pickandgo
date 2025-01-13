@@ -1,0 +1,32 @@
+---
+import { UsersTable } from "@/components/UsersTable";
+import { PostsTable } from "@/components/PostsTable";
+import Layout from "@/layouts/Layout.astro";
+import { client } from "@/lib/client";
+
+if (Astro.locals.user?.role !== "admin") {
+  return Astro.redirect("/");
+}
+
+const { data } = await client.api.listing.posts.get();
+---
+
+<Layout>
+  <div class="p-6 space-y-6">
+    <div class="rounded-lg bg-card p-6 shadow-md">
+      <h1 class="text-3xl font-bold mb-2">Admin Dashboard</h1>
+    </div>
+
+    <div class="grid gap-6 md:grid-cols-2">
+      <div class="rounded-lg bg-card p-6 shadow-md">
+        <h2 class="text-2xl font-semibold mb-4">Users</h2>
+        <UsersTable client:load />
+      </div>
+
+      <div class="rounded-lg bg-card p-6 shadow-md">
+        <h2 class="text-2xl font-semibold mb-4">Posts</h2>
+        <PostsTable posts={data?.posts || []} client:load />
+      </div>
+    </div>
+  </div>
+</Layout>
