@@ -1,4 +1,7 @@
-import { pgTable, text, integer, timestamp, boolean } from "drizzle-orm/pg-core";
+import { relations, sql } from "drizzle-orm";
+import { pgTable, text, integer, timestamp, boolean, pgEnum, check, unique } from "drizzle-orm/pg-core";
+
+export const postType = pgEnum("post_type", ["announcement", "news"]);
 
 export const user = pgTable("user", {
     id: text("id").primaryKey(),
@@ -7,6 +10,7 @@ export const user = pgTable("user", {
     emailVerified: boolean('email_verified').notNull(),
     image: text('image'),
     role: text('role').notNull(),
+    approved: boolean('approved').notNull().default(false),
     createdAt: timestamp('created_at').notNull(),
     updatedAt: timestamp('updated_at').notNull()
 });
@@ -51,9 +55,56 @@ export const verification = pgTable("verification", {
 export const posts = pgTable("posts", (t) => ({
     id: t.text("id").primaryKey(),
     title: t.text("title").notNull(),
-    content: t.json("content").notNull(),
-    public: t.boolean("public").notNull(),
+    content: t.json("content"),
+    type: t.text("type", { enum: postType.enumValues }).notNull(),
+    public: t.boolean("public").notNull().default(false),
+    shortDescription: t.text("short_description"),
+    deletedAt: t.timestamp("deleted_at"),
     createdAt: t.timestamp("created_at").notNull(),
     updatedAt: t.timestamp("updated_at").notNull(),
     userId: t.text("user_id").notNull().references(() => user.id, { onDelete: 'set null' })
 }))
+
+export const priority = pgTable("priority", (t) => ({
+    id: t.text("id").primaryKey(),
+    priority: t.integer("priority").notNull().default(0).unique(),
+    postId: t.text("post_id").notNull().references(() => posts.id, { onDelete: 'set null' }).unique(),
+}),
+    (table) => [{
+        checkLimit: check("priority_check", sql`${table.priority} >= 0 AND ${table.priority} <= 10`),
+    }]
+)
+
+
+export const postRelations = relations(posts, ({ one }) => ({
+    user: one(user, {
+        fields: [posts.userId],
+        references: [user.id]
+    })
+}))
+
+export const priorityRelations = relations(priority, ({ one }) => ({
+    post: one(posts, {
+        fields: [priority.postId],
+        references: [posts.id]
+    })
+}))
+
+export const sectionSequence = pgTable("section_sequence", {
+    id: text("id").primaryKey(),
+    sequence: integer("sequence").array().notNull().default([1, 2, 3, 4]),
+})
+
+export type Post = typeof posts.$inferSelect
+
+export interface PostWithUser extends Post {
+    user: {
+        name: string
+    }
+}
+
+export type PriorityPost = typeof priority.$inferSelect
+
+export interface PriorityPostWithPost extends Omit<PriorityPost, 'id'> {
+    post: Pick<Post, 'title'>
+}

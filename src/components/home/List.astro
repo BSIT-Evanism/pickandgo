@@ -1,0 +1,32 @@
+---
+const { data } = Astro.props;
+
+const mockData = [
+  { title: "Item 1", description: "Description for item 1" },
+  { title: "Item 2", description: "Description for item 2" },
+  { title: "Item 3", description: "Description for item 3" },
+  { title: "Item 4", description: "Description for item 4" },
+];
+
+const items = data?.items || mockData;
+---
+
+<div class="w-full flex justify-center items-center mb-6">
+  <div class="w-[80vw] bg-slate-100 rounded-md p-8">
+    <h2 class="text-2xl font-bold text-slate-900 mb-6">
+      {data?.title || "Featured Items"}
+    </h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {
+        items.map((item) => (
+          <div class="bg-white p-6 rounded-md shadow-sm hover:shadow-md transition-shadow">
+            <h3 class="text-lg font-semibold text-slate-800 mb-2">
+              {item.title}
+            </h3>
+            <p class="text-slate-600">{item.description}</p>
+          </div>
+        ))
+      }
+    </div>
+  </div>
+</div>

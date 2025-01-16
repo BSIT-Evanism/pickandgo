@@ -1,0 +1,26 @@
+---
+import { ViewerComponent } from "@/components/Viewer";
+import { db } from "@/db";
+import Layout from "@/layouts/Layout.astro";
+import type { Block } from "@blocknote/core";
+import "@blocknote/core/fonts/inter.css";
+import "@blocknote/mantine/style.css";
+
+const { postId } = Astro.params;
+
+if (!postId) {
+  return Astro.redirect("/");
+}
+
+const post = await db.query.posts.findFirst({
+  where: (table, { eq }) => eq(table.id, postId as string),
+});
+
+if (!post) {
+  return Astro.redirect("/404");
+}
+---
+
+<Layout>
+  <ViewerComponent client:only="react" document={post.content as Block[]} />
+</Layout>

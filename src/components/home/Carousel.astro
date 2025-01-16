@@ -1,0 +1,83 @@
+---
+const mockData = [
+  {
+    image: "https://picsum.photos/800/400?random=1",
+    alt: "Random image 1",
+  },
+  {
+    image: "https://picsum.photos/800/400?random=2",
+    alt: "Random image 2",
+  },
+  {
+    image: "https://picsum.photos/800/400?random=3",
+    alt: "Random image 3",
+  },
+  {
+    image: "https://picsum.photos/800/400?random=4",
+    alt: "Random image 4",
+  },
+];
+
+const data = Astro.props.data || mockData;
+---
+
+<div class="w-full flex justify-center items-center mb-6">
+  <div class="w-[80vw] relative overflow-hidden rounded-md">
+    <div class="flex transition-transform duration-300" id="carousel-container">
+      {
+        data.map((item) => (
+          <div class="w-full flex-shrink-0">
+            <img
+              src={item.image}
+              alt={item.alt || ""}
+              class="w-full h-[40vh] object-cover rounded-md"
+            />
+          </div>
+        ))
+      }
+    </div>
+
+    <button
+      class="absolute left-4 top-1/2 -translate-y-1/2 bg-white/80 p-3 rounded-full hover:bg-white transition-colors shadow-md"
+      id="prev-btn"
+      aria-label="Previous slide"
+    >
+      ←
+    </button>
+    <button
+      class="absolute right-4 top-1/2 -translate-y-1/2 bg-white/80 p-3 rounded-full hover:bg-white transition-colors shadow-md"
+      id="next-btn"
+      aria-label="Next slide"
+    >
+      →
+    </button>
+  </div>
+</div>
+
+<script>
+  const container = document.getElementById("carousel-container");
+  const prevBtn = document.getElementById("prev-btn");
+  const nextBtn = document.getElementById("next-btn");
+  let currentIndex = 0;
+
+  function updateCarousel() {
+    if (container) {
+      container.style.transform = `translateX(-${currentIndex * 100}%)`;
+    }
+  }
+
+  prevBtn?.addEventListener("click", () => {
+    if (currentIndex > 0) {
+      currentIndex--;
+      updateCarousel();
+    }
+  });
+
+  nextBtn?.addEventListener("click", () => {
+    const slides = container?.children.length || 0;
+    if (currentIndex < slides - 1) {
+      currentIndex++;
+      updateCarousel();
+    }
+  });
+</script>

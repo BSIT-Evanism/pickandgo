@@ -1,15 +1,31 @@
 ---
+import HeroSection from "@/components/home/HeroSection.astro";
 import Welcome from "../components/Welcome.astro";
 import Layout from "../layouts/Layout.astro";
+import Carousel from "@/components/home/Carousel.astro";
+import List from "@/components/home/List.astro";
+import Marquee from "@/components/home/Marquee.astro";
 const data = Astro.locals;
+
+const config = await fetch(Astro.url.origin + "/api/config");
+const configData = await config.json();
+
+// Map components to their index numbers (matching GridPreview.tsx order)
+const componentMap = {
+  1: Marquee,
+  2: HeroSection,
+  3: Carousel,
+  4: List,
+};
 ---
 
 <Layout>
-  <div class="w-full h-full flex justify-center items-center">
-    <div
-      class="bg-slate-100 p-4 rounded-md max-w-fit w-full flex justify-center items-center"
-    >
-      <pre>{JSON.stringify(data, null, 2)}</pre>
-    </div>
+  <div class="w-full h-full bg-slate-50">
+    {
+      configData.sequence.map((index: number) => {
+        const Component = componentMap[index as keyof typeof componentMap];
+        return Component && <Component />;
+      })
+    }
   </div>
 </Layout>

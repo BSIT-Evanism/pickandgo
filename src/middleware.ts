@@ -1,7 +1,6 @@
 import { auth } from "@/lib/auth";
 import { defineMiddleware, sequence } from "astro:middleware";
-import { client } from "./lib/client";
-import { db } from "./db";
+import { checkDatabaseConnection, db } from "./db";
 
 
 const authMiddleware = defineMiddleware(async (context, next) => {
@@ -36,7 +35,7 @@ const initMiddleware = defineMiddleware(async (context, next) => {
         console.log(noAdmin)
         context.locals.init = noAdmin ? true : false
         if (!noAdmin) {
-            if (context.url.pathname !== '/init' && context.url.pathname !== '/api/init') {
+            if (context.url.pathname !== '/init' && context.url.pathname !== '/_actions/init/') {
                 return context.redirect('/init')
             }
         }
@@ -49,4 +48,15 @@ const initMiddleware = defineMiddleware(async (context, next) => {
     }
 })
 
-export const onRequest = sequence(initMiddleware, authMiddleware)
+
+const checkDBMiddleware = defineMiddleware(async (context, next) => {
+    const isConnected = await checkDatabaseConnection()
+    if (!isConnected) {
+        if (context.url.pathname !== '/error-db') {
+            return context.redirect('/error-db')
+        }
+    }
+    return await next()
+})
+
+export const onRequest = sequence(checkDBMiddleware, initMiddleware, authMiddleware)

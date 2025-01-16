@@ -5,7 +5,8 @@ import { useStore } from "@nanostores/react";
 import "@blocknote/mantine/style.css";
 import { useEffect, useMemo } from "react";
 import { BlockNoteEditor, type Block } from "@blocknote/core";
-import { addWordCount, saveStatus, wordCount } from "@/stores/editor";
+import { addWordCount, saveStatus, setPostContent, wordCount } from "@/stores/editor";
+import type { Post } from "@/db/schema";
 
 interface TextBlock {
     type: 'text';
@@ -20,6 +21,9 @@ interface ContentBlock {
 
 const countWords = (content: ContentBlock[]): number => {
     return content.reduce((count, block) => {
+        // Skip table blocks
+        if (block.type === 'table') return count;
+
         if (!block.content) return count;
 
         if (typeof block.content === 'string') {
@@ -63,17 +67,18 @@ const initialContent = [
     },
 ]
 
-export const AdvancedEditor = () => {
+export const AdvancedEditor = ({ post }: { post: Post }) => {
     const editor = useMemo(() => {
         return BlockNoteEditor.create({
-            initialContent: initialContent as Block[]
+            initialContent: post.content ? post.content as Block[] : initialContent as Block[]
         });
-    }, [initialContent]);
+    }, [post.content]);
 
     useEffect(() => {
         // Initial word count
         saveStatus.set(true);
         const blocks = editor.document;
+        setPostContent(blocks);
         const count = countWords(blocks as ContentBlock[]);
         addWordCount(count);
 
@@ -90,15 +95,16 @@ export const AdvancedEditor = () => {
 
             // Handle save status
             saveStatus.set(false);
+            setPostContent(blocks);
             debouncedSave();
         });
 
         // Cleanup
         return () => {
-            unsubscribe?.();
             debouncedSave.cancel();
+            unsubscribe?.();
         };
     }, [editor]);
 
-    return <BlockNoteView theme="light" editor={editor} />;
+    return <BlockNoteView theme="light" editor={editor} />
 }
