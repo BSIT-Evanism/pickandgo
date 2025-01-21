@@ -3,11 +3,29 @@ import { Signout } from "./Signout"
 
 
 
-export const MainHeader = ({ session }: { session: any }) => {
+export const MainHeader = ({ session, pathname }: { session: any, pathname: string }) => {
     return (
-        <div className="flex shadow-md justify-between p-4">
-            <a href="/" className="text-2xl font-bold">Logo</a>
-            {session ? <Signout /> : <ModalAuth />}
-        </div>
+        <section className="w-full px-8 text-gray-700 bg-white" >
+            <div className="container flex flex-col flex-wrap items-center justify-between py-5 mx-auto md:flex-row max-w-7xl">
+                <div className="relative flex flex-col md:flex-row">
+                    <a href="/" className="flex items-center mb-5 font-medium text-gray-900 lg:w-auto lg:items-center lg:justify-center md:mb-0">
+                        <span className="mx-auto text-xl font-black leading-none text-gray-900 select-none">Pick and Go<span className="text-indigo-600" data-primary="indigo-600">.</span></span>
+                    </a>
+                    <nav className="flex flex-wrap items-center mb-5 text-base md:mb-0 md:pl-8 md:ml-8 md:border-l md:border-gray-200">
+                        <a href="/" className={`mr-5 font-medium leading-6 text-gray-600 hover:text-gray-900 ${pathname === "/" ? "text-indigo-600" : ""}`}>Home</a>
+                        <a href="/activities" className={`mr-5 font-medium leading-6 text-gray-600 hover:text-gray-900 ${pathname === "/activities" ? "text-indigo-600" : ""}`}>Activities</a>
+                        <a href="/events" className={`mr-5 font-medium leading-6 text-gray-600 hover:text-gray-900 ${pathname === "/events" ? "text-indigo-600" : ""}`}>Events</a>
+                        <a href="/feedback" className={`mr-5 font-medium leading-6 text-gray-600 hover:text-gray-900 ${pathname === "/feedback" ? "text-indigo-600" : ""}`}>Feedback</a>
+                    </nav>
+                </div>
+
+                <div className="inline-flex items-center ml-5 space-x-6 lg:justify-end">
+
+                    {session ? <Signout user={session} /> : <ModalAuth />}
+
+                </div>
+            </div>
+        </section>
+
     )
 }

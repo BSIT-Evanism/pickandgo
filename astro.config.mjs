@@ -5,6 +5,8 @@ import tailwind from '@astrojs/tailwind';
 import react from '@astrojs/react';
 import vercel from '@astrojs/vercel';
 
+import node from '@astrojs/node';
+
 import sentry from '@sentry/astro';
 import spotlightjs from '@spotlightjs/astro';
 
@@ -24,7 +26,11 @@ export default defineConfig({
       })
     }
   },
-  integrations: [tailwind(), react()],
+  integrations: [tailwind({
+    applyBaseStyles: false,
+  }), react()],
   output: 'server',
-  adapter: vercel(),
+  adapter: node({
+    mode: 'standalone',
+  }),
 });

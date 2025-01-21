@@ -1,0 +1,66 @@
+---
+import { ContentEditor } from "@/components/ContentEditor";
+import { PreviewContent } from "@/components/PreviewContent";
+import { db } from "@/db";
+import Layout from "@/layouts/Layout.astro";
+
+const { activityId } = Astro.params;
+
+if (!activityId) {
+  return Astro.redirect("/admin");
+}
+
+if (!Astro.locals.user || Astro.locals.user.role !== "admin") {
+  return Astro.redirect("/admin");
+}
+
+const content = await db.query.farmActivity.findFirst({
+  where: (table, { eq }) => eq(table.id, activityId),
+  columns: {
+    description: true,
+    name: true,
+    image: true,
+    active: true,
+  },
+});
+---
+
+<Layout title="Admin">
+  <div class="w-full h-full flex p-4">
+    <div class="w-1/2 p-4 space-y-4">
+      <h1 class="text-3xl font-bold tracking-tight">Activity Editor</h1>
+      <p class="text-sm text-muted-foreground">
+        Editing activity #{activityId} - {content?.name}
+      </p>
+      <div class="flex flex-col gap-2 rounded-lg bg-slate-50 p-4">
+        <p class="text-sm text-muted-foreground">
+          Use the page builder on the right to create and edit content for this
+          activity. You can:
+        </p>
+        <ul class="text-sm text-muted-foreground list-disc ml-6 space-y-1">
+          <li>
+            Drag and drop components from the sidebar into the content area
+          </li>
+          <li>Click on any component to edit its content and properties</li>
+          <li>Rearrange components by dragging them to different positions</li>
+          <li>
+            Delete components by selecting them and pressing the delete button
+          </li>
+          <li>Preview your changes using the preview button at the top</li>
+        </ul>
+      </div>
+      <PreviewContent
+        activityId={activityId}
+        initialContent={content?.description || []}
+        name={content?.name || ""}
+        imageLink={content?.image || ""}
+        activeState={content?.active || false}
+        client:only="react"
+      />
+    </div>
+    <ContentEditor
+      initialContent={content?.description || []}
+      client:only="react"
+    />
+  </div>
+</Layout>

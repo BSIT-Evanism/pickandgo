@@ -1,14 +1,13 @@
 import { DATABASE_URL } from 'astro:env/server';
-import { drizzle } from 'drizzle-orm/node-postgres';
-import pkg from 'pg';
+import { drizzle } from 'drizzle-orm/postgres-js';
+import postgres from 'postgres';
 import * as schema from './schema';
 
-const { Pool } = pkg;
 
-const sql = new Pool({
-    connectionString: DATABASE_URL,
-});
-const db = drizzle({ client: sql, schema });
+const sqlClient = postgres(DATABASE_URL);
 
-export { db };
+const db = drizzle({ client: sqlClient, schema });
+
+export { db, sqlClient };
+
 

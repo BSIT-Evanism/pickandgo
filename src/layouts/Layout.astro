@@ -1,8 +1,20 @@
 ---
 import { MainHeader } from "@/components/Header";
+import { PromotionPlat } from "@/components/PromotionPlat";
 import { Signout } from "@/components/Signout";
+import { Toaster } from "@/components/ui/sonner";
+import { db } from "@/db";
+import "@/styles/globals.css";
+import { ClientRouter } from "astro:transitions";
 
-const status = Astro.locals.session;
+const promotionData = await db.query.promotions.findFirst();
+
+// Set cookie only if it doesn't exist
+
+const { title } = Astro.props;
+const status = Astro.locals.user;
+
+// Move promotion handling to the top
 ---
 
 <!doctype html>
@@ -15,19 +27,33 @@ const status = Astro.locals.session;
     <script
       src="https://cloud.umami.is/script.js"
       data-website-id="7aa7460b-bb4d-4a2f-ae97-6e18ff4f4ca3"></script>
-    <title>Astro Basics</title>
+    <!-- import this BEFORE any scripts -->
+    <!-- <script is:inline src="https://unpkg.com/react-scan/dist/auto.global.js"
+    ></script> -->
+    <!-- <ClientRouter /> -->
+    <title>{title}</title>
   </head>
   <body>
-    <MainHeader session={status} client:load />
+    <PromotionPlat
+      promotion={promotionData}
+      open={Astro.locals.promotion === "open"}
+      client:only="react"
+    />
+    <Toaster client:load />
+    <MainHeader pathname={Astro.url.pathname} session={status} client:load />
     <slot />
   </body>
 </html>
 
-<style>
+<style is:global>
   html,
   body {
     margin: 0;
     width: 100%;
     height: 100%;
   }
+
+  /* * {
+    border: 1px solid red;
+  } */
 </style>

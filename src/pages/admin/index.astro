@@ -1,0 +1,72 @@
+---
+import { FarmActivities } from "@/components/FarmActivities";
+import { Events } from "@/components/Events";
+import { Promotions } from "@/components/Promotions";
+import { db } from "@/db";
+import Layout from "@/layouts/Layout.astro";
+import { FeedbackTable } from "@/components/FeedbackTable";
+
+const activities = await db.query.farmActivity.findMany({
+  columns: {
+    id: true,
+    name: true,
+    active: true,
+    updatedAt: true,
+    createdAt: true,
+  },
+});
+
+const events = await db.query.events.findMany({
+  columns: {
+    id: true,
+    name: true,
+    updatedAt: true,
+    createdAt: true,
+    startDate: true,
+    endDate: true,
+    description: true,
+  },
+});
+
+const promotions = await db.query.promotions.findMany({
+  columns: {
+    id: true,
+    name: true,
+    updatedAt: true,
+    createdAt: true,
+    tier: true,
+    description: true,
+  },
+});
+
+const feedback = await db.query.feedback.findMany();
+---
+
+<Layout title="Admin">
+  <h1 class="text-2xl font-bold m-4">Admin</h1>
+  <p class="m-4">This is the admin page</p>
+  <div class="flex gap-4 w-full p-4">
+    <div class="w-1/2 bg-gray-200 p-4 rounded-lg">
+      <h2 class="text-xl font-bold">Farm Activities</h2>
+      <p class="text-sm text-gray-500">Edit farm activities</p>
+      <FarmActivities activities={activities} client:load />
+    </div>
+    <div class="w-1/2 bg-gray-200 p-4 rounded-lg">
+      <h2 class="text-xl font-bold">Feedback</h2>
+      <p class="text-sm text-gray-500">This is the feedback page</p>
+      <FeedbackTable feedback={feedback} client:load />
+    </div>
+  </div>
+  <div class="flex gap-4 w-full p-4">
+    <div class="w-1/2 bg-gray-200 p-4 rounded-lg">
+      <h2 class="text-xl font-bold">Events</h2>
+      <p class="text-sm text-gray-500">Add/Edit events</p>
+      <Events events={events} client:only="react" />
+    </div>
+    <div class="w-1/2 bg-gray-200 p-4 rounded-lg">
+      <h2 class="text-xl font-bold">Promotions</h2>
+      <p class="text-sm text-gray-500">Add/Edit promotions</p>
+      <Promotions promotions={promotions} client:load />
+    </div>
+  </div>
+</Layout>

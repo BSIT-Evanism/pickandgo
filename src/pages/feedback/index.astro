@@ -1,0 +1,8 @@
+---
+import FeedbackForm from "@/components/FeedbackForm.astro";
+import Layout from "@/layouts/Layout.astro";
+---
+
+<Layout title="Feedback">
+  <FeedbackForm session={Astro.locals.session ? true : false} />
+</Layout>

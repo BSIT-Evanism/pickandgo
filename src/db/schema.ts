@@ -1,4 +1,10 @@
-import { pgTable, text, integer, timestamp, boolean } from "drizzle-orm/pg-core";
+import { relations, sql } from "drizzle-orm";
+import { pgTable, text, integer, timestamp, boolean, pgEnum, json, uuid, serial, check } from "drizzle-orm/pg-core";
+
+
+export const userRole = pgEnum("user_role", ["admin", "user"]);
+export const servicesProductType = pgEnum("services_product_type", ["service", "product"]);
+export const promotionTier = pgEnum("promotion_tier", ["bronze", "silver", "gold"]);
 
 export const user = pgTable("user", {
     id: text("id").primaryKey(),
@@ -6,8 +12,10 @@ export const user = pgTable("user", {
     email: text('email').notNull().unique(),
     emailVerified: boolean('email_verified').notNull(),
     image: text('image'),
+    role: text('role', { enum: userRole.enumValues }).notNull().default("user"),
     createdAt: timestamp('created_at').notNull(),
-    updatedAt: timestamp('updated_at').notNull()
+    updatedAt: timestamp('updated_at').notNull(),
+    hasFeedback: boolean('has_feedback').notNull().default(false)
 });
 
 export const session = pgTable("session", {
@@ -45,3 +53,63 @@ export const verification = pgTable("verification", {
     createdAt: timestamp('created_at'),
     updatedAt: timestamp('updated_at')
 });
+
+
+export const farmActivity = pgTable("farm_activity", {
+    id: uuid("id").primaryKey().defaultRandom(),
+    name: text("name").notNull(),
+    description: json("description").array().$type<{
+        id: string;
+        type: "heading" | "paragraph" | "list" | "image" | "link";
+        content: string;
+    }[]>(),
+    createdAt: timestamp("created_at").notNull(),
+    active: boolean("active").notNull().default(false),
+    updatedAt: timestamp("updated_at").notNull(),
+    image: text("image")
+});
+
+
+export const servicesProduct = pgTable("services_product", {
+    id: serial("id").primaryKey(),
+    name: text("name").notNull(),
+    type: text("type", { enum: servicesProductType.enumValues }).notNull(),
+    createdAt: timestamp("created_at").notNull(),
+    updatedAt: timestamp("updated_at").notNull()
+});
+
+
+export const events = pgTable("events", {
+    id: uuid("id").primaryKey().defaultRandom(),
+    name: text("name").notNull(),
+    description: text("description"),
+    startDate: timestamp("start_date").notNull(),
+    endDate: timestamp("end_date").notNull(),
+    createdAt: timestamp("created_at").notNull(),
+    updatedAt: timestamp("updated_at").notNull(),
+});
+
+export const promotions = pgTable("promotions", {
+    id: uuid("id").primaryKey().defaultRandom(),
+    name: text("name").notNull(),
+    description: text("description"),
+    tier: text("tier", { enum: promotionTier.enumValues }).notNull(),
+    createdAt: timestamp("created_at").notNull(),
+    updatedAt: timestamp("updated_at").notNull()
+});
+
+export const feedback = pgTable("feedback", {
+    id: serial("id").primaryKey(),
+    userId: text("user_id").notNull().references(() => user.id),
+    name: text("name").notNull(),
+    email: text("email").notNull(),
+    message: text("message").notNull(),
+    createdAt: timestamp("created_at").notNull(),
+});
+
+
+export type FarmActivity = typeof farmActivity.$inferSelect;
+export type ServicesProduct = typeof servicesProduct.$inferSelect;
+export type Events = typeof events.$inferSelect;
+export type Promotions = typeof promotions.$inferSelect;
+export type Feedback = typeof feedback.$inferSelect;

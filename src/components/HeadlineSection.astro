@@ -1,0 +1,13 @@
+---
+import { db } from "@/db";
+import { Image } from "astro:assets";
+import { HeadlineSectionCarousel } from "./HeadlineSectionCarousel";
+
+const mainData = await db.query.farmActivity.findMany({
+  where: (farmActivity, { eq }) => eq(farmActivity.active, true),
+  orderBy: (farmActivity, { desc }) => [desc(farmActivity.createdAt)],
+  limit: 3,
+});
+---
+
+<HeadlineSectionCarousel client:load mainData={mainData} />

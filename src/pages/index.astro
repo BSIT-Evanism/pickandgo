@@ -1,15 +1,77 @@
 ---
+import ContentSection from "@/components/ContentSection.astro";
+import HeadlineSection from "@/components/HeadlineSection.astro";
+import { MarqueeComponent } from "@/components/Marquee";
 import Welcome from "../components/Welcome.astro";
 import Layout from "../layouts/Layout.astro";
+import Footer from "@/components/Footer.astro";
+import CtaSection from "@/components/CtaSection.astro";
+import { db } from "@/db";
 const data = Astro.locals;
+
+const [data1, data2, data3] = await Promise.all([
+  db.query.farmActivity.findFirst({
+    where: (table, { eq }) => eq(table.active, true),
+  }),
+  db.query.events.findFirst({
+    where: (table, { and, lte, gte }) =>
+      and(lte(table.startDate, new Date()), gte(table.endDate, new Date())),
+  }),
+  db.query.promotions.findFirst(),
+]);
+
+const feed = {
+  activity: data1,
+  event: data2,
+  promotion: data3,
+};
 ---
 
 <Layout>
-  <div class="w-full h-full flex justify-center items-center">
-    <div
-      class="bg-slate-100 p-4 rounded-md max-w-fit w-full flex justify-center items-center"
-    >
-      <pre>{JSON.stringify(data, null, 2)}</pre>
-    </div>
-  </div>
+  {
+    feed.event && (
+      <div
+        class="sticky top-0 z-50 w-full bg-gradient-to-r from-white/80 via-indigo-50/80 to-white/80 animate-gradient backdrop-blur-sm shadow-md p-4"
+        style="background-size: 200% 100%; animation: gradientMove 8s linear infinite;"
+      >
+        <div class="max-w-4xl mx-auto">
+          <div class="flex items-center justify-between">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="currentColor"
+              class="size-6"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5m-9-6h.008v.008H12v-.008ZM12 15h.008v.008H12V15Zm0 2.25h.008v.008H12v-.008ZM9.75 15h.008v.008H9.75V15Zm0 2.25h.008v.008H9.75v-.008ZM7.5 15h.008v.008H7.5V15Zm0 2.25h.008v.008H7.5v-.008Zm6.75-4.5h.008v.008h-.008v-.008Zm0 2.25h.008v.008h-.008V15Zm0 2.25h.008v.008h-.008v-.008Zm2.25-4.5h.008v.008H16.5v-.008Zm0 2.25h.008v.008H16.5V15Z"
+              />
+            </svg>
+
+            <div>
+              <p class="text-sm font-medium text-indigo-600">Current Event</p>
+              <h3 class="text-lg font-semibold text-gray-900">
+                {feed.event.name}
+              </h3>
+              <p class="text-sm text-gray-500">{feed.event.description}</p>
+            </div>
+            <div class="text-right">
+              <p class="text-sm text-gray-500">
+                {new Date(feed.event.startDate).toLocaleDateString()} -{" "}
+                {new Date(feed.event.endDate).toLocaleDateString()}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+  <HeadlineSection />
+  <MarqueeComponent feed={feed} client:only="react" />
+  <ContentSection />
+  <CtaSection />
+  <Footer />
 </Layout>
