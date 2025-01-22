@@ -1,0 +1,177 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import { db } from "@/db";
+
+const events = await db.query.events.findMany();
+
+const today = new Date();
+today.setHours(0, 0, 0, 0);
+
+const currentEvents = events.filter((event) => {
+  const startDate = new Date(event.startDate);
+  const endDate = new Date(event.endDate);
+  startDate.setHours(0, 0, 0, 0);
+  endDate.setHours(23, 59, 59, 999);
+  return startDate <= today && endDate >= today;
+});
+
+const otherEvents = events
+  .filter((event) => {
+    const startDate = new Date(event.startDate);
+    const endDate = new Date(event.endDate);
+    startDate.setHours(0, 0, 0, 0);
+    endDate.setHours(0, 0, 0, 0);
+    return !(startDate <= today && endDate >= today);
+  })
+  .map((event) => {
+    const startDate = new Date(event.startDate);
+    const endDate = new Date(event.endDate);
+    startDate.setHours(0, 0, 0, 0);
+    endDate.setHours(0, 0, 0, 0);
+
+    let status = "";
+    if (startDate > today) {
+      const daysUntilStart = Math.ceil(
+        (startDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
+      );
+      if (daysUntilStart === 1) {
+        status = "Starting tomorrow";
+      } else if (daysUntilStart <= 7) {
+        status = `Starting in ${daysUntilStart} days`;
+      } else {
+        status = `Starting on ${startDate.toLocaleDateString()}`;
+      }
+    } else if (endDate < today) {
+      const daysSinceEnd = Math.ceil(
+        (today.getTime() - endDate.getTime()) / (1000 * 60 * 60 * 24)
+      );
+      if (daysSinceEnd === 1) {
+        status = "Ended yesterday";
+      } else if (daysSinceEnd <= 7) {
+        status = `Ended ${daysSinceEnd} days ago`;
+      } else {
+        status = `Ended on ${endDate.toLocaleDateString()}`;
+      }
+    }
+
+    console.log({
+      event: event.name,
+      startDate: startDate.toISOString(),
+      endDate: endDate.toISOString(),
+      today: today.toISOString(),
+      status,
+    });
+
+    return { ...event, status };
+  });
+---
+
+<Layout>
+  <section class="py-16 bg-gradient-to-b from-white to-gray-50">
+    <div class="container mx-auto px-4">
+      <div class="text-center mb-16">
+        <h1
+          class="text-4xl md:text-5xl font-bold bg-gradient-to-r from-indigo-600 to-blue-500 bg-clip-text text-transparent"
+        >
+          Upcoming Farm Events
+        </h1>
+        <p class="mt-4 text-lg text-muted-foreground">
+          Join us for exciting seasonal activities and special occasions
+        </p>
+      </div>
+
+      {
+        currentEvents.length > 0 && (
+          <div class="mb-16">
+            <div class="flex items-center gap-3 mb-8">
+              <div class="size-2 bg-green-500 rounded-full animate-pulse" />
+              <h2 class="text-2xl font-semibold text-gray-900">
+                Currently Running
+              </h2>
+            </div>
+            <div class="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+              {currentEvents.map((event) => (
+                <div class="group relative col-span-1 mb-4 bg-white p-8 rounded-2xl shadow-md hover:shadow-xl transition-all duration-300">
+                  <div class="absolute inset-0 bg-gradient-to-r from-indigo-600/10 to-blue-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl" />
+                  <h3 class="text-xl font-bold text-gray-900 group-hover:text-indigo-600 transition-colors duration-300">
+                    {event.name}
+                  </h3>
+                  <p class="mt-3 text-gray-600 leading-relaxed">
+                    {event.description}
+                  </p>
+                  <div class="mt-6 pt-6 border-t border-gray-100">
+                    <div class="flex items-center text-sm text-indigo-600 font-medium">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke-width="1.5"
+                        stroke="currentColor"
+                        class="size-6"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5"
+                        />
+                      </svg>
+                      {new Date(event.startDate).toLocaleDateString()} -{" "}
+                      {new Date(event.endDate).toLocaleDateString()}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )
+      }
+
+      <div>
+        <h2 class="text-2xl font-semibold mb-8 text-gray-900">
+          Event Calendar
+        </h2>
+        <div class="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+          {
+            otherEvents.map((event) => (
+              <div class="group bg-white p-8 rounded-2xl shadow-md hover:shadow-xl transition-all duration-300">
+                <div class="flex flex-col h-full">
+                  <h3 class="text-xl font-bold text-gray-900 group-hover:text-indigo-600 transition-colors duration-300">
+                    {event.name}
+                  </h3>
+                  <p class="mt-3 text-gray-600 leading-relaxed flex-grow">
+                    {event.description}
+                  </p>
+                  <div class="mt-6 pt-6 border-t border-gray-100 space-y-4">
+                    <div class="flex items-center text-sm text-gray-500">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke-width="1.5"
+                        stroke="currentColor"
+                        class="size-6"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5"
+                        />
+                      </svg>
+                      {new Date(event.startDate).toLocaleDateString()} -{" "}
+                      {new Date(event.endDate).toLocaleDateString()}
+                    </div>
+                    {event.status && (
+                      <div class="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium bg-gradient-to-r from-indigo-50 to-blue-50 text-indigo-700">
+                        {event.status}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))
+          }
+        </div>
+      </div>
+    </div>
+  </section>
+</Layout>

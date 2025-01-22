@@ -52,14 +52,18 @@ export default {
     			},
     		},
 			animation: {
-				marquee: 'marquee 25s linear infinite',
+				marquee: 'marquee 20s linear infinite',
 				gradientMove: 'gradientMove 8s linear infinite',
 			},
 			keyframes: {
 				marquee: {
-				  '0%': { transform: 'translateX(0%)' },
-				  '100%': { transform: 'translateX(-100%)' },
-				},
+                    '0%': {
+                        transform: 'translateX(0)'
+                    },
+                    '100%': {
+                        transform: 'translateX(-100%)'
+                    },
+                },
 				gradientMove: {
 					'0%': { backgroundPosition: '0% 50%' },
 					'100%': { backgroundPosition: '100% 50%' },

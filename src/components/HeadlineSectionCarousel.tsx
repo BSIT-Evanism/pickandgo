@@ -79,7 +79,7 @@ export const MainHeadline = React.memo(({ mainData }: { mainData: FarmActivity }
                             >
                                 <span>Recent</span>
                                 <span>Activity</span>
-                                <span className="text-green-600 mt-2"
+                                <span style={{ viewTransitionName: `activity-name-${mainData.id}` }} className="text-green-600 mt-2"
                                 >{mainData.name || "No name available"}</span
                                 >
                             </h1>
@@ -92,9 +92,13 @@ export const MainHeadline = React.memo(({ mainData }: { mainData: FarmActivity }
                                     }
                                 </p>
                             </div>
+                            <a href={`/activities/${mainData.id}`} className="text-white bg-green-600 p-2 text-xl shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] transition-shadow duration-300 border-2 border-black">
+                                Read more
+                            </a>
                         </div>
                         <div className="md:w-1/2 lg:w-auto">
                             <img
+                                style={{ viewTransitionName: `activity-image-${mainData.id}` }}
                                 src={mainData.image || "https://placehold.co/600x400@2x.png"}
                                 alt="Recent Activity"
                                 loading="eager"

@@ -10,16 +10,38 @@ export const MarqueeComponent = ({ feed }: { feed: any }) => {
 
     return (
         <div className="bg-black text-white py-2 overflow-hidden relative">
-            <Marquee>
-                <div className="flex justify-evenly w-full">
-                    {news.map((item, index) => (
-                        <span key={index} className="mx-4">
-                            {item}
-                            <span className="mx-4">•</span>
-                        </span>
-                    ))}
-                </div>
-            </Marquee>
+            <div className="flex justify-evenly w-full -translate-x-full animate-marquee whitespace-nowrap">
+                {news.map((item, index) => (
+                    <span key={index} className="mx-4">
+                        {item}
+                        <span className="mx-4">•</span>
+                    </span>
+                ))}
+                {news.map((item, index) => (
+                    <span key={index} className="mx-4">
+                        {item}
+                        <span className="mx-4">•</span>
+                    </span>
+                ))}
+                {news.map((item, index) => (
+                    <span key={index} className="mx-4">
+                        {item}
+                        <span className="mx-4">•</span>
+                    </span>
+                ))}
+                {news.map((item, index) => (
+                    <span key={index} className="mx-4">
+                        {item}
+                        <span className="mx-4">•</span>
+                    </span>
+                ))}
+                {news.map((item, index) => (
+                    <span key={index} className="mx-4">
+                        {item}
+                        <span className="mx-4">•</span>
+                    </span>
+                ))}
+            </div>
         </div>
     )
 }

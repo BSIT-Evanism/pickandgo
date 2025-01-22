@@ -70,7 +70,7 @@ const feed = {
     )
   }
   <HeadlineSection />
-  <MarqueeComponent feed={feed} client:only="react" />
+  <MarqueeComponent transition:name="marquee" feed={feed} client:only="react" />
   <ContentSection />
   <CtaSection />
   <Footer />

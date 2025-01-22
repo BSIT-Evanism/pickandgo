@@ -30,18 +30,20 @@ const status = Astro.locals.user;
     <!-- import this BEFORE any scripts -->
     <!-- <script is:inline src="https://unpkg.com/react-scan/dist/auto.global.js"
     ></script> -->
-    <!-- <ClientRouter /> -->
+    <ClientRouter />
     <title>{title}</title>
   </head>
   <body>
-    <PromotionPlat
-      promotion={promotionData}
-      open={Astro.locals.promotion === "open"}
-      client:only="react"
-    />
-    <Toaster client:load />
-    <MainHeader pathname={Astro.url.pathname} session={status} client:load />
-    <slot />
+    <main>
+      <PromotionPlat
+        promotion={promotionData}
+        open={Astro.locals.promotion === "open"}
+        client:only="react"
+      />
+      <Toaster client:load />
+      <MainHeader pathname={Astro.url.pathname} session={status} client:load />
+      <slot />
+    </main>
   </body>
 </html>
 
