@@ -72,7 +72,7 @@ export const postContent = pgTable("post_content", {
 })
 
 export const priority = pgTable("priority", (t) => ({
-    id: t.text("id").primaryKey(),
+    id: t.serial("id").primaryKey(),
     priority: t.integer("priority").notNull().default(0).unique(),
     postId: t.text("post_id").notNull().references(() => posts.id, { onDelete: 'set null' }).unique(),
 }),

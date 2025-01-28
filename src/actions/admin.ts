@@ -3,7 +3,7 @@ import { postContent, posts, priority, sectionSequence } from "@/db/schema";
 import { generateId } from "@/lib/utils";
 import { ActionError, defineAction, type ActionAPIContext } from "astro:actions";
 import { z } from "astro:schema";
-import { eq } from "drizzle-orm";
+import { eq, inArray, sql, SQL } from "drizzle-orm";
 
 export const admin = {
     createPost: defineAction({
@@ -257,6 +257,87 @@ export const admin = {
             return {
                 success: true,
                 postId: post.id
+            }
+        }
+    }),
+    managePriority: defineAction({
+        accept: 'json',
+        input: z.object({
+            postId: z.string().optional(),
+            priority: z.array(z.object({
+                id: z.string(),
+                priority: z.number()
+            })).optional(),
+            priorityNumber: z.number().optional(),
+            mode: z.enum(['add', 'remove', 'arrange'])
+        }),
+        handler: async (input, context) => {
+            authMiddleware(context)
+
+            if (input.mode === 'add') {
+
+                if (!input.postId) {
+                    throw new ActionError({
+                        code: 'BAD_REQUEST',
+                        message: 'Post ID is required'
+                    })
+                }
+
+                const [data] = await db.insert(priority).values({
+                    postId: input.postId,
+                    priority: input.priorityNumber ?? 1
+                }).returning()
+            }
+
+            if (input.mode === 'remove') {
+
+                if (!input.postId) {
+                    throw new ActionError({
+                        code: 'BAD_REQUEST',
+                        message: 'Post ID is required'
+                    })
+                }
+
+                const [data] = await db.delete(priority).where(eq(priority.postId, input.postId)).returning()
+            }
+
+            if (input.mode === 'arrange') {
+
+                if (!input.priority) {
+                    throw new ActionError({
+                        code: 'BAD_REQUEST',
+                        message: 'Priority is required'
+                    })
+                }
+
+                const sqlChunks: SQL[] = []
+
+                const ids: string[] = [];
+                sqlChunks.push(sql`(case`);
+                for (const prio of input.priority) {
+                    sqlChunks.push(sql`when ${priority.id} = ${prio.id} then ${prio.priority}`);
+                    ids.push(prio.id);
+                }
+
+                sqlChunks.push(sql`end)`);
+
+                const finalSql: SQL = sql.join(sqlChunks, sql.raw(' '));
+
+                const [data] = await db.update(priority).set({
+                    priority: finalSql
+                }).where(inArray(priority.postId, ids)).returning()
+
+                if (!data) {
+                    throw new ActionError({
+                        code: 'INTERNAL_SERVER_ERROR',
+                        message: 'Failed to arrange priority'
+                    })
+                }
+
+                return {
+                    success: true,
+                    data: data
+                }
             }
         }
     })
