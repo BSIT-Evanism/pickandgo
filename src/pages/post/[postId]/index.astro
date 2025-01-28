@@ -12,8 +12,8 @@ if (!postId) {
   return Astro.redirect("/");
 }
 
-const post = await db.query.posts.findFirst({
-  where: (table, { eq }) => eq(table.id, postId as string),
+const post = await db.query.postContent.findFirst({
+  where: (table, { eq }) => eq(table.postId, postId as string),
 });
 
 if (!post) {

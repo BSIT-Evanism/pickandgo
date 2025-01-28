@@ -6,7 +6,7 @@ import "@blocknote/mantine/style.css";
 import { useEffect, useMemo } from "react";
 import { BlockNoteEditor, type Block } from "@blocknote/core";
 import { addWordCount, saveStatus, setPostContent, wordCount } from "@/stores/editor";
-import type { Post } from "@/db/schema";
+import type { Post, PostContent } from "@/db/schema";
 
 interface TextBlock {
     type: 'text';
@@ -67,12 +67,13 @@ const initialContent = [
     },
 ]
 
-export const AdvancedEditor = ({ post }: { post: Post }) => {
+export const AdvancedEditor = ({ post }: { post: PostContent | null }) => {
+
     const editor = useMemo(() => {
         return BlockNoteEditor.create({
-            initialContent: post.content ? post.content as Block[] : initialContent as Block[]
+            initialContent: post?.content ? post.content as Block[] : initialContent as Block[]
         });
-    }, [post.content]);
+    }, [post?.content]);
 
     useEffect(() => {
         // Initial word count

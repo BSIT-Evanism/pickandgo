@@ -1,8 +1,10 @@
 ---
 import { MainHeader } from "@/components/Header";
 import "@/styles/globals.css";
+import "node_modules/sonner/dist/styles.css";
 import { ClientRouter } from "astro:transitions";
 import { Toaster } from "@/components/ui/sonner";
+import NoticeBar from "@/components/NoticeBar.astro";
 const status = Astro.locals.user?.role ?? null;
 ---
 
@@ -13,12 +15,13 @@ const status = Astro.locals.user?.role ?? null;
     <meta name="viewport" content="width=device-width" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="generator" content={Astro.generator} />
-    <ClientRouter transition:animate="fade" />
+    <ClientRouter />
     <title>Portal</title>
   </head>
   <body>
-    <Toaster transition:persist client:only />
+    <NoticeBar />
     <MainHeader role={status} pathname={Astro.url.pathname} client:load />
+    <Toaster transition:persist client:only />
     <slot />
   </body>
 </html>

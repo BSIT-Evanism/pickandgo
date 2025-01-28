@@ -1,5 +1,5 @@
 import { db } from "@/db";
-import { posts, priority, sectionSequence } from "@/db/schema";
+import { postContent, posts, priority, sectionSequence } from "@/db/schema";
 import { generateId } from "@/lib/utils";
 import { ActionError, defineAction, type ActionAPIContext } from "astro:actions";
 import { z } from "astro:schema";
@@ -12,6 +12,7 @@ export const admin = {
             title: z.string(),
             type: z.enum(['announcement', 'news']),
             shortDescription: z.string(),
+            image: z.string().regex(/^https?:\/\/.+/).optional(),
         }),
         handler: async (input, context) => {
 
@@ -29,27 +30,39 @@ export const admin = {
                 })
             }
 
-            const [post] = await db.insert(posts).values({
-                id: generateId(),
-                title: input.title,
-                type: input.type as 'announcement' | 'news',
-                userId: context.locals.user.id,
-                createdAt: new Date(),
-                updatedAt: new Date(),
-                shortDescription: input.shortDescription,
-            }).returning()
+            const newPost = await db.transaction(async (tx) => {
 
-            if (!post) {
-                throw new ActionError({
-                    code: 'INTERNAL_SERVER_ERROR',
-                    message: 'Failed to create post'
+                const [post] = await tx.insert(posts).values({
+                    id: generateId(),
+                    title: input.title,
+                    type: input.type as 'announcement' | 'news',
+                    userId: context.locals.user?.id ?? '',
+                    image: input.image,
+                    createdAt: new Date(),
+                    updatedAt: new Date(),
+                    shortDescription: input.shortDescription,
+                }).returning()
+
+                if (!post) {
+                    throw new ActionError({
+                        code: 'INTERNAL_SERVER_ERROR',
+                        message: 'Failed to create post'
+                    })
+                }
+
+                await tx.insert(postContent).values({
+                    postId: post.id,
+                    content: null,
                 })
-            }
 
-            return {
-                success: true,
-                postId: post.id
-            }
+                return {
+                    success: true,
+                    postId: post.id
+                }
+
+            })
+
+            return newPost
 
         }
     }),
@@ -113,22 +126,41 @@ export const admin = {
                 })
             }
 
-            const [post] = await db.update(posts).set({
-                content: input.content,
-                updatedAt: new Date()
-            }).where(eq(posts.id, input.postId)).returning()
+            const content = await db.transaction(async (tx) => {
+                const [postResult] = await tx.select().from(posts).where(eq(posts.id, input.postId))
 
-            if (!post) {
-                throw new ActionError({
-                    code: 'INTERNAL_SERVER_ERROR',
-                    message: 'Failed to update post content'
-                })
-            }
+                if (!postResult) {
+                    throw new ActionError({
+                        code: 'NOT_FOUND',
+                        message: 'Post not found'
+                    })
+                }
 
-            return {
-                success: true,
-                postId: post.id
-            }
+                await tx.update(postContent).set({
+                    content: input.content,
+                }).where(eq(postContent.postId, input.postId)).returning()
+
+                const [post] = await tx.update(posts).set({
+                    updatedAt: new Date()
+                }).where(eq(posts.id, input.postId)).returning()
+
+                if (!post) {
+                    throw new ActionError({
+                        code: 'INTERNAL_SERVER_ERROR',
+                        message: 'Failed to update post content'
+                    })
+                }
+
+                return {
+                    success: true,
+                    postId: post.id
+                }
+
+
+            })
+
+            return content
+
         }
     }),
     editGridLayout: defineAction({
@@ -196,6 +228,31 @@ export const admin = {
                     message: 'Post not found'
                 })
             }
+
+            return {
+                success: true,
+                postId: post.id
+            }
+        }
+    }),
+    editPostDetails: defineAction({
+        accept: 'form',
+        input: z.object({
+            postId: z.string(),
+            title: z.string(),
+            shortDescription: z.string(),
+            type: z.enum(['announcement', 'news']),
+            image: z.string().regex(/^https?:\/\/.+/).optional(),
+        }),
+        handler: async (input, context) => {
+            authMiddleware(context)
+
+            const [post] = await db.update(posts).set({
+                title: input.title,
+                shortDescription: input.shortDescription,
+                type: input.type as 'announcement' | 'news',
+                image: input.image,
+            }).where(eq(posts.id, input.postId)).returning()
 
             return {
                 success: true,

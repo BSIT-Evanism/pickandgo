@@ -1,19 +1,21 @@
 ---
+import { Image } from "astro:assets";
+
 const mockData = [
   {
-    image: "https://picsum.photos/800/400?random=1",
+    image: "https://placehold.co/600x400",
     alt: "Random image 1",
   },
   {
-    image: "https://picsum.photos/800/400?random=2",
+    image: "https://placehold.co/600x400",
     alt: "Random image 2",
   },
   {
-    image: "https://picsum.photos/800/400?random=3",
+    image: "https://placehold.co/600x400",
     alt: "Random image 3",
   },
   {
-    image: "https://picsum.photos/800/400?random=4",
+    image: "https://placehold.co/600x400",
     alt: "Random image 4",
   },
 ];
@@ -27,9 +29,11 @@ const data = Astro.props.data || mockData;
       {
         data.map((item) => (
           <div class="w-full flex-shrink-0">
-            <img
+            <Image
               src={item.image}
               alt={item.alt || ""}
+              inferSize
+              loading="eager"
               class="w-full h-[40vh] object-cover rounded-md"
             />
           </div>
@@ -55,29 +59,31 @@ const data = Astro.props.data || mockData;
 </div>
 
 <script>
-  const container = document.getElementById("carousel-container");
-  const prevBtn = document.getElementById("prev-btn");
-  const nextBtn = document.getElementById("next-btn");
-  let currentIndex = 0;
+  document.addEventListener("astro:page-load", () => {
+    const container = document.getElementById("carousel-container");
+    const prevBtn = document.getElementById("prev-btn");
+    const nextBtn = document.getElementById("next-btn");
+    let currentIndex = 0;
 
-  function updateCarousel() {
-    if (container) {
-      container.style.transform = `translateX(-${currentIndex * 100}%)`;
+    function updateCarousel() {
+      if (container) {
+        container.style.transform = `translateX(-${currentIndex * 100}%)`;
+      }
     }
-  }
 
-  prevBtn?.addEventListener("click", () => {
-    if (currentIndex > 0) {
-      currentIndex--;
-      updateCarousel();
-    }
-  });
+    prevBtn?.addEventListener("click", () => {
+      if (currentIndex > 0) {
+        currentIndex--;
+        updateCarousel();
+      }
+    });
 
-  nextBtn?.addEventListener("click", () => {
-    const slides = container?.children.length || 0;
-    if (currentIndex < slides - 1) {
-      currentIndex++;
-      updateCarousel();
-    }
+    nextBtn?.addEventListener("click", () => {
+      const slides = container?.children.length || 0;
+      if (currentIndex < slides - 1) {
+        currentIndex++;
+        updateCarousel();
+      }
+    });
   });
 </script>

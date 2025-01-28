@@ -1,12 +1,11 @@
 import { db } from "@/db";
+import { getConfig } from "@/db/queries";
 import { sectionSequence } from "@/db/schema";
 import { eq } from "drizzle-orm";
 
 export const GET = async () => {
 
-    const config = await db.query.sectionSequence.findFirst({
-        where: eq(sectionSequence.id, "1"),
-    });
+    const config = await getConfig.execute();
 
     console.log(config);
 

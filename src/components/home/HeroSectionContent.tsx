@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { Post, Priority } from "@/types/post";
 import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 
 interface HeroSectionProps {
     recent: Post[];
@@ -10,11 +11,33 @@ interface HeroSectionProps {
 
 export function HeroSectionContent({ recent, priority, initialData }: HeroSectionProps) {
     const [state, setState] = useState<"main" | "recent">("main");
-    const data = state === "recent" ? recent[0] : priority[0].post || initialData;
+    const [currentIndex, setCurrentIndex] = useState(0);
+
+    // Get the current data array based on state
+    const currentArray = state === "recent" ? recent : priority;
+    const data = state === "recent" ? recent[currentIndex] : priority[currentIndex]?.post || initialData;
 
     // Check if the current view has no content
     const isEmptyView = (state === "recent" && recent.length === 0) ||
         (state === "main" && priority.length === 0);
+
+    const handleNext = () => {
+        if (currentIndex < currentArray.length - 1) {
+            setCurrentIndex(currentIndex + 1);
+        }
+    };
+
+    const handlePrev = () => {
+        if (currentIndex > 0) {
+            setCurrentIndex(currentIndex - 1);
+        }
+    };
+
+    // Reset index when switching tabs
+    const handleStateChange = (newState: "main" | "recent") => {
+        setState(newState);
+        setCurrentIndex(0);
+    };
 
     return (
         <div className="w-full flex justify-center items-center mb-6">
@@ -22,7 +45,7 @@ export function HeroSectionContent({ recent, priority, initialData }: HeroSectio
                 <div className="absolute top-8 left-8 md:top-10 md:left-10">
                     <div className="backdrop-blur-md bg-white/80 rounded-full p-1.5 flex gap-3 shadow-sm border border-slate-100">
                         <button
-                            onClick={() => setState("recent")}
+                            onClick={() => handleStateChange("recent")}
                             className={`px-4 py-2 rounded-full transition-all duration-300 ${state === "recent"
                                 ? "bg-slate-900 text-white shadow-md"
                                 : "text-slate-600 hover:bg-slate-100"
@@ -31,7 +54,7 @@ export function HeroSectionContent({ recent, priority, initialData }: HeroSectio
                             Recent {recent.length > 0 && <span className="ml-1 text-sm opacity-75">({recent.length})</span>}
                         </button>
                         <button
-                            onClick={() => setState("main")}
+                            onClick={() => handleStateChange("main")}
                             className={`px-4 py-2 rounded-full transition-all duration-300 ${state === "main"
                                 ? "bg-slate-900 text-white shadow-md"
                                 : "text-slate-600 hover:bg-slate-100"
@@ -41,6 +64,31 @@ export function HeroSectionContent({ recent, priority, initialData }: HeroSectio
                         </button>
                     </div>
                 </div>
+
+                {!isEmptyView && (
+                    <div className="absolute top-1/2 -translate-y-1/2 w-full flex justify-between px-4">
+                        <button
+                            onClick={handlePrev}
+                            disabled={currentIndex === 0}
+                            className={cn(
+                                "p-2 rounded-full bg-white/80 backdrop-blur-sm shadow-sm hover:bg-white transition-all",
+                                currentIndex === 0 && "opacity-50 cursor-not-allowed"
+                            )}
+                        >
+                            ←
+                        </button>
+                        <button
+                            onClick={handleNext}
+                            disabled={currentIndex === currentArray.length - 1}
+                            className={cn(
+                                "p-2 rounded-full bg-white/80 backdrop-blur-sm shadow-sm hover:bg-white transition-all",
+                                currentIndex === currentArray.length - 1 && "opacity-50 cursor-not-allowed"
+                            )}
+                        >
+                            →
+                        </button>
+                    </div>
+                )}
 
                 {isEmptyView ? (
                     <div className="text-center flex flex-col justify-center items-center space-y-8">
@@ -57,7 +105,7 @@ export function HeroSectionContent({ recent, priority, initialData }: HeroSectio
                             }
                         </Badge>
                         <button
-                            onClick={() => setState(state === "recent" ? "main" : "recent")}
+                            onClick={() => handleStateChange(state === "recent" ? "main" : "recent")}
                             className="px-8 py-4 bg-gradient-to-br from-slate-900 to-slate-800 text-white rounded-full hover:from-slate-800 hover:to-slate-700 transition-all duration-300 shadow-lg hover:shadow-xl text-lg hover:scale-105"
                         >
                             View {state === "recent" ? "Main" : "Recent"} Content
@@ -65,6 +113,11 @@ export function HeroSectionContent({ recent, priority, initialData }: HeroSectio
                     </div>
                 ) : (
                     <div className="space-y-10 text-center max-w-4xl mx-auto">
+                        <div className="mb-4">
+                            <Badge variant="secondary" className="mb-2">
+                                {currentIndex + 1} of {currentArray.length}
+                            </Badge>
+                        </div>
                         <h1 className="text-5xl md:text-7xl font-bold bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 bg-clip-text text-transparent leading-tight">
                             {data.title}
                         </h1>

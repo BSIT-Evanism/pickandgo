@@ -166,10 +166,12 @@ const CreatePostDialog = () => {
     const [type, setType] = useState<'announcement' | 'news'>('announcement')
     const [shortDescription, setShortDescription] = useState('')
     const [isOpen, setIsOpen] = useState(false)
+    const [image, setImage] = useState('')
+    const [imageFinal, setImageFinal] = useState('')
 
     const handleCreatePost = async () => {
         try {
-            const { data, error } = await actions.admin.createPost({ title, type, shortDescription })
+            const { data, error } = await actions.admin.createPost({ title, type, shortDescription, image: imageFinal })
             if (!error && data?.postId) {
                 setIsOpen(false)
                 navigate(`/admin/edit/${data.postId}`)
@@ -221,6 +223,23 @@ const CreatePostDialog = () => {
                             </SelectContent>
                         </Select>
                     </div>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="image" className="text-right">
+                            Image
+                        </Label>
+                        <Input id="image" value={image} onChange={(e) => {
+                            const value = e.target.value;
+                            setImage(value);
+                            if (value === '' || /^https?:\/\/.+/.test(value)) {
+                                setImageFinal(value);
+                            }
+                        }} className="col-span-3" />
+                    </div>
+                    {imageFinal && (
+                        <div className="items-center rounded-md border overflow-hidden w-fit h-fit gap-4">
+                            <img src={imageFinal} alt="Image Preview" className="w-24 h-24 object-cover" />
+                        </div>
+                    )}
                 </div>
                 <DialogFooter>
                     <Button type="submit" onClick={handleCreatePost}>Save changes</Button>

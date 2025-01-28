@@ -1,7 +1,7 @@
 import { saveStatus, wordCount, postContent } from "@/stores/editor";
 import { useStore } from "@nanostores/react";
 import { Badge } from "./ui/badge";
-import type { Post } from "@/db/schema";
+import type { Post, PostContent } from "@/db/schema";
 import { Button } from "./ui/button";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
@@ -13,7 +13,7 @@ import { useCreateBlockNote } from "@blocknote/react";
 import type { Block } from "@blocknote/core";
 import { toast } from "sonner";
 
-export const EditorBar = ({ post }: { post: Post }) => {
+export const EditorBar = ({ post, postCont }: { post: Post, postCont: PostContent | null }) => {
     const count = useStore(wordCount);
     const status = useStore(saveStatus);
     const content = useStore(postContent);
@@ -21,9 +21,9 @@ export const EditorBar = ({ post }: { post: Post }) => {
     const [hasChanges, setHasChanges] = useState(false);
 
     useEffect(() => {
-        const contentChanged = JSON.stringify(content) !== JSON.stringify(post.content);
+        const contentChanged = JSON.stringify(content) !== JSON.stringify(postCont?.content);
         setHasChanges(contentChanged);
-    }, [content, post.content]);
+    }, [content, postCont?.content]);
 
     const savePost = async () => {
         try {

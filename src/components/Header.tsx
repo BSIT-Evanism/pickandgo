@@ -5,7 +5,7 @@ import { Signout } from "./Signout"
 
 export const MainHeader = ({ role, pathname }: { role: string | null, pathname: string }) => {
     return (
-        <div className="flex items-center justify-between p-4 bg-slate-50">
+        <div id="headernav" className="flex items-center justify-between p-4 bg-slate-50">
             <a href="/" className="text-2xl font-bold hover:text-slate-700 transition-colors">Logo</a>
             <div className="bg-slate-100 rounded-lg p-2">
                 <div className="flex items-center gap-2 text-sm text-slate-600">

@@ -59,4 +59,4 @@ const checkDBMiddleware = defineMiddleware(async (context, next) => {
     return await next()
 })
 
-export const onRequest = sequence(checkDBMiddleware, initMiddleware, authMiddleware)
+export const onRequest = sequence(initMiddleware, authMiddleware)

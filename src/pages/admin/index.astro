@@ -17,9 +17,6 @@ const initialPosts = await db.query.posts.findMany({
       },
     },
   },
-  columns: {
-    content: false,
-  },
 });
 
 const priority = await db.query.priority.findMany({

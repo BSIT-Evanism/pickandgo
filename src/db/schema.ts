@@ -1,5 +1,5 @@
 import { relations, sql } from "drizzle-orm";
-import { pgTable, text, integer, timestamp, boolean, pgEnum, check, unique } from "drizzle-orm/pg-core";
+import { pgTable, text, integer, timestamp, boolean, pgEnum, check, unique, jsonb, serial } from "drizzle-orm/pg-core";
 
 export const postType = pgEnum("post_type", ["announcement", "news"]);
 
@@ -48,15 +48,15 @@ export const verification = pgTable("verification", {
     value: text('value').notNull(),
     expiresAt: timestamp('expires_at').notNull(),
     createdAt: timestamp('created_at'),
-    updatedAt: timestamp('updated_at')
+    updatedAt: timestamp('updated_at'),
 });
 
 
 export const posts = pgTable("posts", (t) => ({
     id: t.text("id").primaryKey(),
     title: t.text("title").notNull(),
-    content: t.json("content"),
     type: t.text("type", { enum: postType.enumValues }).notNull(),
+    image: t.text("image"),
     public: t.boolean("public").notNull().default(false),
     shortDescription: t.text("short_description"),
     deletedAt: t.timestamp("deleted_at"),
@@ -64,6 +64,12 @@ export const posts = pgTable("posts", (t) => ({
     updatedAt: t.timestamp("updated_at").notNull(),
     userId: t.text("user_id").notNull().references(() => user.id, { onDelete: 'set null' })
 }))
+
+export const postContent = pgTable("post_content", {
+    id: serial("id").primaryKey(),
+    content: jsonb("content"),
+    postId: text("post_id").notNull().references(() => posts.id, { onDelete: 'set null' })
+})
 
 export const priority = pgTable("priority", (t) => ({
     id: t.text("id").primaryKey(),
@@ -80,6 +86,13 @@ export const postRelations = relations(posts, ({ one }) => ({
     user: one(user, {
         fields: [posts.userId],
         references: [user.id]
+    }),
+}))
+
+export const postContentRelations = relations(postContent, ({ one }) => ({
+    post: one(posts, {
+        fields: [postContent.postId],
+        references: [posts.id]
     })
 }))
 
@@ -95,8 +108,9 @@ export const sectionSequence = pgTable("section_sequence", {
     sequence: integer("sequence").array().notNull().default([1, 2, 3, 4]),
 })
 
-export type Post = typeof posts.$inferSelect
 
+export type Post = typeof posts.$inferSelect
+export type PostContent = typeof postContent.$inferSelect
 export interface PostWithUser extends Post {
     user: {
         name: string

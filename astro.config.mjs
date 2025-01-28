@@ -4,6 +4,7 @@ import { defineConfig, envField } from 'astro/config';
 import tailwind from '@astrojs/tailwind';
 import react from '@astrojs/react';
 import vercel from '@astrojs/vercel';
+import swup from '@swup/astro';
 
 
 // https://astro.build/config
@@ -27,4 +28,8 @@ export default defineConfig({
   }), react()],
   output: 'server',
   adapter: vercel(),
+  prefetch: {
+    prefetchAll: true,
+    defaultStrategy: 'hover'
+  }
 });
