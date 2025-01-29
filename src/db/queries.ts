@@ -22,3 +22,8 @@ export const getPriorityPosts = db.query.priority.findMany({
     },
     limit: 3,
 }).prepare('getPriorityPosts')
+
+
+export const getPostContent = db.query.postContent.findFirst({
+    where: (table, { eq, sql }) => eq(table.postId, sql.placeholder('postId')),
+}).prepare('getPostContent')

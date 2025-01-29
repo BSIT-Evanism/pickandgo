@@ -13,11 +13,13 @@ export const PriorityPostsTable = ({ priorityPosts, posts }: { priorityPosts: Pr
 
     const [postId, setPostId] = useState<string | null>(null)
     const [priority, setPriority] = useState<number | null>(null)
+    const [error, setError] = useState<string | null>(null)
 
     async function addPriority() {
 
         if (!postId || !priority) {
             toast.error('Please select a post and priority')
+            setError('Please select a post and priority')
             return
         }
 
@@ -29,8 +31,18 @@ export const PriorityPostsTable = ({ priorityPosts, posts }: { priorityPosts: Pr
 
         toast.promise(handler, {
             loading: 'Adding priority',
-            success: 'Priority added',
-            error: 'Failed to add priority'
+            success: (e) => {
+                setError(null)
+                if (e.error) {
+                    setError(e.error.message)
+                    return 'Failed to add priority'
+                }
+                return 'Priority added'
+            },
+            error: (e) => {
+                setError(e.message)
+                return 'Failed to add priority'
+            }
         })
     }
 
@@ -51,6 +63,7 @@ export const PriorityPostsTable = ({ priorityPosts, posts }: { priorityPosts: Pr
                             Add priority to a post
                         </DialogDescription>
                     </DialogHeader>
+                    {error && <div className="text-red-200 text-sm border border-red-500 rounded-md p-2">{error}</div>}
                     <div className="flex flex-col gap-4">
                         <div className="flex flex-col gap-2">
                             <Label htmlFor="priority">Priority</Label>

@@ -1,6 +1,7 @@
 ---
 import { ViewerComponent } from "@/components/Viewer";
 import { db } from "@/db";
+import { getPostContent } from "@/db/queries";
 import Layout from "@/layouts/Layout.astro";
 import type { Block } from "@blocknote/core";
 import "@blocknote/core/fonts/inter.css";
@@ -12,9 +13,7 @@ if (!postId) {
   return Astro.redirect("/");
 }
 
-const post = await db.query.postContent.findFirst({
-  where: (table, { eq }) => eq(table.postId, postId as string),
-});
+const post = await getPostContent.execute({ postId: postId as string });
 
 if (!post) {
   return Astro.redirect("/404");

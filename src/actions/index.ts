@@ -42,7 +42,7 @@ export const server = {
 
             const sequence = await db.select().from(sectionSequence).limit(1)
 
-            if (!sequence) {
+            if (sequence.length === 0) {
                 await db.insert(sectionSequence).values({
                     id: '1',
                     sequence: [1, 2, 3, 4]
