@@ -1,6 +1,6 @@
 import { auth } from "@/lib/auth";
 import { defineMiddleware, sequence } from "astro:middleware";
-import { checkDatabaseConnection, db } from "./db";
+import { db } from "./db";
 
 
 const authMiddleware = defineMiddleware(async (context, next) => {

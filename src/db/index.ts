@@ -11,19 +11,19 @@ const sql = new Pool({
 });
 
 //Add a function to check database connection
-async function checkDatabaseConnection() {
-    try {
-        const client = await sql.connect();
-        await client.query('SELECT NOW()');
-        client.release();
-        return true;
-    } catch (error) {
-        console.error('Database connection error:', error);
-        return false;
-    }
-}
+// async function checkDatabaseConnection() {
+//     try {
+//         const client = await sql.connect();
+//         await client.query('SELECT NOW()');
+//         client.release();
+//         return true;
+//     } catch (error) {
+//         console.error('Database connection error:', error);
+//         return false;
+//     }
+// }
 
 const db = drizzle({ client: sql, schema });
 
-export { db, checkDatabaseConnection };
+export { db };
 
