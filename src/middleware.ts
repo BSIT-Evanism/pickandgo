@@ -49,14 +49,4 @@ const initMiddleware = defineMiddleware(async (context, next) => {
 })
 
 
-const checkDBMiddleware = defineMiddleware(async (context, next) => {
-    const isConnected = await checkDatabaseConnection()
-    if (!isConnected) {
-        if (context.url.pathname !== '/error-db') {
-            return context.redirect('/error-db')
-        }
-    }
-    return await next()
-})
-
-export const onRequest = sequence(initMiddleware, authMiddleware, checkDBMiddleware)
+export const onRequest = sequence(initMiddleware, authMiddleware)
